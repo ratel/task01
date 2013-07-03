@@ -1,0 +1,7 @@
+push 7
+push 3
++
+push 30
+/
+print
+print
