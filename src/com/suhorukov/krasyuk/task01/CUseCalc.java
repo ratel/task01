@@ -18,9 +18,9 @@ import java.util.Set;
  * To change this template use File | Settings | File Templates.
  */
 public class CUseCalc {
-    Scanner scn;                                                                    // Считывание команд пользователя.
-    int     workMode;                                                               // Режим работы (1- считываем из файла, 2- с консоли).
-    String  lastCmdLine= "";                                                        // Последняя считанная команда.
+    private Scanner scn;                                                                    // Считывание команд пользователя.
+    private int     workMode;                                                               // Режим работы (1- считываем из файла, 2- с консоли).
+    private String  lastCmdLine= "";                                                        // Последняя считанная команда.
     final String CMD_EXIT= "exit";                                                  // Команда прерывания ввода данных.
 
     public CUseCalc (String nameFile) {
