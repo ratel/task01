@@ -13,7 +13,6 @@ public class CmdPop extends AbstractCmd implements ICmd {
 
     @Override
     public int execute(String cmdLine) {
-
         if (dataStack.size() > 0) {
             dataStack.pop();
         }

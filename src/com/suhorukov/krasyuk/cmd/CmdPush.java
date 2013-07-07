@@ -12,8 +12,6 @@ import java.util.Stack;
  * To change this template use File | Settings | File Templates.
  */
 public class CmdPush extends AbstractCmd implements ICmd {
-    //static Hashtable<String, Double> dictionaryDefine= null;                             // Словарь констант.
-
 
     @Override
     public int execute(String cmdLine) {
@@ -30,6 +28,7 @@ public class CmdPush extends AbstractCmd implements ICmd {
             catch (Exception e) {
                 if (dictionaryDefine != null) {
                     valueFromDictionary= dictionaryDefine.get(cmdWords[1]);
+
                     if (valueFromDictionary != null) {
                         dataStack.add(valueFromDictionary);
                         return 0;

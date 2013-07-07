@@ -1,5 +1,7 @@
 package com.suhorukov.krasyuk.task01;
 
+import java.io.File;
+
 /**
  * Created with IntelliJ IDEA.
  * User: Krasyuk
@@ -14,10 +16,12 @@ public class CMain {
         String userCmd= "";                                                              // Введенная пользователем команда.
         CUseCalc useCalc;                                                                // Режим использования калькулятора.
 
-        if (args.length > 0)
-            useCalc= new CUseCalc(args[0]);
+        if (args.length > 0){
+            useCalc= new CUseCalc(new File(args[0]), CUseCalc.WorkType.WHILEREAD);
+        }
         else
-            useCalc= new CUseCalc("");
+            useCalc= new CUseCalc(System.in, CUseCalc.WorkType.NOTEXIT);
+
         useCalc.buildCalc("CalcCommandList.properties", stackCalc);
 
         while (useCalc.isWokrs()) {

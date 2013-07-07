@@ -4,7 +4,6 @@ import java.util.Hashtable;
 import java.util.Stack;
 
 public class CmdDictionary extends AbstractCmd implements ICmd {
-//       String cmdText = "DEFINE";                                                // Текстовая интерпретация команды реализованной в классе.
 
     @Override
     public int execute(String cmdLine) {

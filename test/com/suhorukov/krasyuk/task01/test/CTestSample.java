@@ -4,6 +4,8 @@ import com.suhorukov.krasyuk.task01.CStackCalc;
 import com.suhorukov.krasyuk.task01.CUseCalc;
 import junit.framework.TestCase;
 
+import java.io.File;
+
 /**
  * Created with IntelliJ IDEA.
  * User: user
@@ -30,7 +32,7 @@ public class CTestSample extends TestCase {
         CUseCalc useCalc;                                                                // Режим использования калькулятора.
         String userCmd= "";                                                              // Введенная пользователем команда.
 
-        useCalc= new CUseCalc("res//1.txt");
+        useCalc= new CUseCalc(new File("res//1.txt"), CUseCalc.WorkType.WHILEREAD);
         useCalc.buildCalc("CalcCommandList", stackCalc);
 
         while (useCalc.isWokrs()) {

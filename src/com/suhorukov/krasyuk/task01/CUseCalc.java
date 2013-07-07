@@ -6,13 +6,14 @@ import com.suhorukov.krasyuk.cmd.fieldCmdKind;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.*;
 
 import static com.suhorukov.krasyuk.cmd.fieldCmdKind.*;
 
-/**            yt
+/**
  * Created with IntelliJ IDEA.
  * User: Krasyuk
  * Date: 01.07.13
@@ -21,18 +22,23 @@ import static com.suhorukov.krasyuk.cmd.fieldCmdKind.*;
  */
 public class CUseCalc {
     private Scanner scn;                                                                    // Считывание команд пользователя.
-    private int     workMode;                                                               // Режим работы (1- считываем из файла, 2- с консоли).
+    private WorkType workMode;                                                              // Режим работы (1- считываем из файла, 2- с консоли).
     private String  lastCmdLine= "";                                                        // Последняя считанная команда.
-    final String CMD_EXIT= "exit";                                                  // Команда прерывания ввода данных.
+    final String CMD_EXIT= "exit";                                                          // Команда прерывания ввода данных.
+    public enum WorkType {WHILEREAD, NOTEXIT, DONTWORK}
 
-    public CUseCalc (String nameFile) {
+    public CUseCalc (InputStream inStream, WorkType workMode) {
+        scn= new Scanner(inStream);
+        this.workMode= workMode;
+    }
+
+    public CUseCalc (File file, WorkType workMode) {
         try {
-            scn= new Scanner(new File(nameFile));
-            workMode= 1;
+            scn= new Scanner(file);
+            this.workMode= workMode;
         } catch (FileNotFoundException e) {
-            scn= new Scanner(System.in);
-            workMode= 2;
-            System.out.println("Вводите команды работы с калькулятором");
+            System.out.println("Не удалось открыть файл \"" + file.getName() + "\"");
+            this.workMode= WorkType.DONTWORK;
         }
     }
 
@@ -43,11 +49,20 @@ public class CUseCalc {
 
     public boolean isWokrs() {
         switch (workMode) {
-            case 1: return scn.hasNext();
-            case 2: return (!lastCmdLine.equals(CMD_EXIT));
+            case WHILEREAD: return scn.hasNext();
+            case NOTEXIT: return (!lastCmdLine.equals(CMD_EXIT));
             //defaul: return false;
         }
         return false;
+    }
+
+    private Hashtable<fieldCmdKind, Object> InitValuesFieldForCmd() {
+        Hashtable<fieldCmdKind, Object> fieldsValue= new Hashtable<fieldCmdKind, Object>();     // Набор пар видов полей и значений для них.
+
+        fieldsValue.put(STACK, (new Stack<Double>()));                                          // Стек значений
+        fieldsValue.put(CONTEXT, (new Hashtable<String, Double>()));                            // Словарь замен.
+
+        return fieldsValue;
     }
 
     public int buildCalc(String resName, CStackCalc calc) {
@@ -56,19 +71,12 @@ public class CUseCalc {
         try {
             InputStreamReader readerCmdList= new InputStreamReader(CMain.class.getResourceAsStream(resName));
             cmdList.load(readerCmdList);
-            Set cmdListSet= cmdList.keySet();
-            String keyCmd;
-            Stack<Double> dataStack= new Stack<Double>();                            // Стек значений
-            Hashtable<String, Double> dictionaryDefine= new Hashtable<String, Double>();
-            Hashtable<fieldCmdKind, Object> fieldsValue= new Hashtable<fieldCmdKind, Object>();
+            Hashtable<fieldCmdKind, Object> fieldsValue= InitValuesFieldForCmd();               // Набор пар видов полей и значений для них.
 
-            fieldsValue.put(STACK, dataStack);
-            fieldsValue.put(CONTEXT, dictionaryDefine);
-
-            for (Iterator<Set> iCmdList= cmdListSet.iterator(); iCmdList.hasNext(); ) {
-                keyCmd= String.valueOf(iCmdList.next());
-                addCmdInCalc(calc, keyCmd, (String) cmdList.get(keyCmd), fieldsValue);
+            for (Map.Entry<Object, Object> icmdList: cmdList.entrySet()) {
+                addCmdInCalc(calc, icmdList.getKey().toString(), icmdList.getValue().toString(), fieldsValue);
             }
+
             return 0;
         }
         catch (Exception e) {
@@ -105,11 +113,11 @@ public class CUseCalc {
 
         while (c != null) {
             f= c.getDeclaredFields();
-            if (f.length > 0) {
-                for (int i= 0; i < f.length; i++) {
-                    setFieldValue(f[i], cmd, fieldsValue);
-                }
+
+            for (int i= 0; i < f.length; i++) {
+                setFieldValue(f[i], cmd, fieldsValue);
             }
+
             c= c.getSuperclass();
         }
     }
@@ -120,8 +128,10 @@ public class CUseCalc {
 
         f.setAccessible(true);
         annotationField= f.getAnnotation(FieldCmd.class);
+
         if (annotationField != null) {
             value= fieldsValue.get(annotationField.fieldType());
+
             if (value != null) {
                 try {
                     f.set(obj, value);
