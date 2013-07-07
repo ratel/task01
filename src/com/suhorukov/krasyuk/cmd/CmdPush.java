@@ -12,11 +12,11 @@ import java.util.Stack;
  * To change this template use File | Settings | File Templates.
  */
 public class CmdPush extends AbstractCmd implements ICmd {
-    static Hashtable<String, Double> dictionaryDefine= null;                             // Словарь констант.
+    //static Hashtable<String, Double> dictionaryDefine= null;                             // Словарь констант.
 
 
     @Override
-    public int execute(Stack<Double> dStak, String cmdLine) {
+    public int execute(String cmdLine) {
         String [] cmdWords= cmdLine.split("\\s");
         Double valueFromDictionary;
 
@@ -25,13 +25,13 @@ public class CmdPush extends AbstractCmd implements ICmd {
         }
         else {
             try {
-                dStak.add(Double.valueOf(cmdWords[1]));
+                dataStack.add(Double.valueOf(cmdWords[1]));
             }
             catch (Exception e) {
                 if (dictionaryDefine != null) {
                     valueFromDictionary= dictionaryDefine.get(cmdWords[1]);
                     if (valueFromDictionary != null) {
-                        dStak.add(valueFromDictionary);
+                        dataStack.add(valueFromDictionary);
                         return 0;
                     }
                 }

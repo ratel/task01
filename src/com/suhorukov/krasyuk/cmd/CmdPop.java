@@ -12,10 +12,10 @@ import java.util.Stack;
 public class CmdPop extends AbstractCmd implements ICmd {
 
     @Override
-    public int execute(Stack<Double> dStak, String cmdLine) {
+    public int execute(String cmdLine) {
 
-        if (dStak.size() > 0) {
-            dStak.pop();
+        if (dataStack.size() > 0) {
+            dataStack.pop();
         }
 
         return 0;

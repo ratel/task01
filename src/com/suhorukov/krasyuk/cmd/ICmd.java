@@ -12,7 +12,7 @@ import java.util.Stack;
  */
 public interface ICmd {
    // static String cmdText= null;
-    public int execute(Stack<Double> dStak, String cmdLine);
+    public int execute(String cmdLine);
     public String getCmdText();
     public void setCmdText(String text);
 }

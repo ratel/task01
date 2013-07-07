@@ -32,7 +32,7 @@ public class CStackCalc {
             cmd= cmdTable.get(cmdWords[0].toUpperCase());
 
         if (cmd != null) {
-            cmd.execute(dataStack, cmdLine);
+            cmd.execute(cmdLine);
         }
         else
             System.out.println("Введенна неизвестная команда- \"" + cmdLine + "\"!");

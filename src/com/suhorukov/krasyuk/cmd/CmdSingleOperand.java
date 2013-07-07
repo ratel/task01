@@ -12,12 +12,12 @@ import java.util.Stack;
 public abstract class CmdSingleOperand extends AbstractCmd implements ICmd {
 
     @Override
-    public int execute(Stack<Double> dStak, String cmdLine) {
+    public int execute(String cmdLine) {
         double op1= 0.0;                                       // Операнд для выполнения команды.
 
-        if (dStak.size() > 0) {
-            op1= dStak.pop();
-            dStak.add(calcOperation(op1));
+        if (dataStack.size() > 0) {
+            op1= dataStack.pop();
+            dataStack.add(calcOperation(op1));
         }
         else
             System.err.println("В стеке не хватает операнда для проведения операции команды " + getCmdText() + "!");

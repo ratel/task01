@@ -3,15 +3,11 @@ package com.suhorukov.krasyuk.cmd;
 import java.util.Hashtable;
 import java.util.Stack;
 
-public class CmdDictionary extends CmdPush implements ICmd {
+public class CmdDictionary extends AbstractCmd implements ICmd {
 //       String cmdText = "DEFINE";                                                // Текстовая интерпретация команды реализованной в классе.
 
-    public CmdDictionary() {
-        dictionaryDefine= new Hashtable<String, Double>();
-    }
-
     @Override
-    public int execute(Stack<Double> dStak, String cmdLine) {
+    public int execute(String cmdLine) {
         String [] cmdWords= cmdLine.split("\\s");
 
         if (dictionaryDefine != null)

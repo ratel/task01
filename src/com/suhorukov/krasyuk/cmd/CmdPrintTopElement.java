@@ -12,10 +12,10 @@ import java.util.Stack;
 public class CmdPrintTopElement extends AbstractCmd implements ICmd {
 
     @Override
-    public int execute(Stack<Double> dStak, String cmdLine) {
+    public int execute(String cmdLine) {
 
-        if (dStak.size() > 0) {
-            System.out.println("Верхний элемент в стеке равен " + dStak.peek());
+        if (dataStack.size() > 0) {
+            System.out.println("Верхний элемент в стеке равен " + dataStack.peek());
         }
         else
             System.out.println("Стек пуст!");
