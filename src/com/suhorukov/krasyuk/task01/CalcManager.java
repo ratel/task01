@@ -20,22 +20,22 @@ import static com.suhorukov.krasyuk.cmd.fieldCmdKind.*;
  * Time: 16:50
  * To change this template use File | Settings | File Templates.
  */
-public class CUseCalc {
+public class CalcManager {
     private Scanner scn;                                                                    // Считывание команд пользователя.
     private WorkType workMode;                                                              // Режим работы (1- считываем из файла, 2- с консоли).
     private String  lastCmdLine= "";                                                        // Последняя считанная команда.
-    final String CMD_EXIT= "exit";                                                          // Команда прерывания ввода данных.
+    final private String CMD_EXIT= "exit";                                                  // Команда прерывания ввода данных.
     public enum WorkType {WHILEREAD, NOTEXIT, DONTWORK}
 
-    public CUseCalc (InputStream inStream, WorkType workMode) {
+    public CalcManager(InputStream inStream) {
         scn= new Scanner(inStream);
-        this.workMode= workMode;
+        this.workMode= WorkType.NOTEXIT;
     }
 
-    public CUseCalc (File file, WorkType workMode) {
+    public CalcManager(File file) {
         try {
             scn= new Scanner(file);
-            this.workMode= workMode;
+            this.workMode= WorkType.WHILEREAD;
         } catch (FileNotFoundException e) {
             System.out.println("Не удалось открыть файл \"" + file.getName() + "\"");
             this.workMode= WorkType.DONTWORK;
@@ -43,57 +43,57 @@ public class CUseCalc {
     }
 
     public String getNextCmd() {
-        lastCmdLine= scn.nextLine();
+        if (scn != null)
+            lastCmdLine= scn.nextLine();
+
         return lastCmdLine;
     }
 
-    public boolean isWokrs() {
+    public boolean isWorks() {
         switch (workMode) {
             case WHILEREAD: return scn.hasNext();
             case NOTEXIT: return (!lastCmdLine.equals(CMD_EXIT));
             //defaul: return false;
         }
+
         return false;
     }
 
     private Hashtable<fieldCmdKind, Object> InitValuesFieldForCmd() {
-        Hashtable<fieldCmdKind, Object> fieldsValue= new Hashtable<fieldCmdKind, Object>();     // Набор пар видов полей и значений для них.
+        Hashtable<fieldCmdKind, Object> fieldsValue= new Hashtable<fieldCmdKind, Object>(); // Набор пар видов полей и значений для них.
 
-        fieldsValue.put(STACK, (new Stack<Double>()));                                          // Стек значений
-        fieldsValue.put(CONTEXT, (new Hashtable<String, Double>()));                            // Словарь замен.
+        fieldsValue.put(STACK, (new Stack<Double>()));                                      // Стек значений
+        fieldsValue.put(CONTEXT, (new Hashtable<String, Double>()));                        // Словарь замен.
 
         return fieldsValue;
     }
 
-    public int buildCalc(String resName, CStackCalc calc) {
-        Properties cmdList= new Properties();
+    public void buildCalc(InputStreamReader readerCmdList, CStackCalc calc) {
+        Properties cmdMap= new Properties();                                               // Перечень комманд калькулятора для создания.
 
         try {
-            InputStreamReader readerCmdList= new InputStreamReader(CMain.class.getResourceAsStream(resName));
-            cmdList.load(readerCmdList);
-            Hashtable<fieldCmdKind, Object> fieldsValue= InitValuesFieldForCmd();               // Набор пар видов полей и значений для них.
+            cmdMap.load(readerCmdList);
+            Hashtable<fieldCmdKind, Object> fieldsValue= InitValuesFieldForCmd();          // Перечень пар (тип поля, значение для него) (инициализация полей команды).
 
-            for (Map.Entry<Object, Object> icmdList: cmdList.entrySet()) {
+            for (Map.Entry<Object, Object> icmdList: cmdMap.entrySet()) {
                 addCmdInCalc(calc, icmdList.getKey().toString(), icmdList.getValue().toString(), fieldsValue);
             }
-
-            return 0;
         }
         catch (Exception e) {
             //e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
             System.err.println("Не удалось загрузить ресурс с перечнем команд калькулятора!");
-            return -1;
         }
     }
 
     private void addCmdInCalc(CStackCalc calc, String cmdName, String className, Hashtable<fieldCmdKind, Object> fieldsValue) {
-        ICmd cmd;
-        Object o= null;
-        Class cls= null;
+        Class cls;                                                                          // Полученный по тектовому имени объект класса Class.
+        Object o;                                                                           // Создаваемый по имени класса объект команды.
+        ICmd cmd;                                                                           // Объект команды, приведенный к базовому классу команды.
 
         try {
             cls = Class.forName(className);
             o= cls.newInstance();
+
             if (o instanceof ICmd) {
                 cmd= (ICmd) o;
                 cmd.setCmdText(cmdName.toUpperCase());
@@ -103,19 +103,19 @@ public class CUseCalc {
             }
         }
         catch (Exception e) {
-            System.err.println("При создании команды для калькулятора использовано неизвестное имя файла (" + className + ")!");
+            System.err.println("При создании команды для калькулятора использовано неизвестное имя класса (" + className + ")!");
         }
     }
 
     private void InitFieldCmd(ICmd cmd, Hashtable<fieldCmdKind, Object> fieldsValue) {
-        Class c= cmd.getClass();
-        Field f[];
+        Class c= cmd.getClass();                                                            // Класс рассматриваемой команды.
+        Field f[];                                                                          // Набор полей рассматриваемого класса.
 
         while (c != null) {
             f= c.getDeclaredFields();
 
-            for (int i= 0; i < f.length; i++) {
-                setFieldValue(f[i], cmd, fieldsValue);
+            for (Field iF : f) {
+                setFieldValue(iF, cmd, fieldsValue);
             }
 
             c= c.getSuperclass();
@@ -123,8 +123,8 @@ public class CUseCalc {
     }
 
     private void setFieldValue(Field f, Object obj, Hashtable<fieldCmdKind, Object> fieldsValue) {
-        FieldCmd annotationField;
-        Object value;
+        FieldCmd annotationField;                                                           // Аннотация описывающая тип поля.
+        Object value;                                                                       // Значение устанавливаемое полю (в зависимости от типа поля).
 
         f.setAccessible(true);
         annotationField= f.getAnnotation(FieldCmd.class);

@@ -12,21 +12,19 @@ import java.util.*;
  * To change this template use File | Settings | File Templates.
  */
 public class CStackCalc {
-    Stack<Double>           dataStack;                            // Стек значений
-    Hashtable<String, ICmd> cmdTable;                             // Поддерживаемые команды.
+    private Hashtable<String, ICmd> cmdTable;                                               // Поддерживаемые команды.
 
 
     public CStackCalc() {
-        dataStack= new Stack<Double>();
         cmdTable= new Hashtable<String, ICmd>();
     }
 
     public void doCmd(String cmdLine) {
-        ICmd cmd= null;
+        ICmd cmd= null;                                                                     // Команда которая будет исполнена.
 //        StringTokenizer st = new StringTokenizer(cmdLine);
 //        if (st.hasMoreTokens())
 //            cmd= cmdTable.get(st.nextToken());
-        String [] cmdWords= cmdLine.split("\\s");
+        String [] cmdWords= cmdLine.split("\\s");                                           // Строка команды, разбитая на слова.
 
         if (cmdWords.length > 0)
             cmd= cmdTable.get(cmdWords[0].toUpperCase());

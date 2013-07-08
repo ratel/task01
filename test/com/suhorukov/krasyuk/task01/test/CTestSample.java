@@ -1,10 +1,13 @@
 package com.suhorukov.krasyuk.task01.test;
 
+import com.suhorukov.krasyuk.task01.CMain;
 import com.suhorukov.krasyuk.task01.CStackCalc;
-import com.suhorukov.krasyuk.task01.CUseCalc;
+import com.suhorukov.krasyuk.task01.CalcManager;
 import junit.framework.TestCase;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 /**
  * Created with IntelliJ IDEA.
@@ -28,15 +31,25 @@ public class CTestSample extends TestCase {
         double y= 0.0;
         assertEquals(x, y);
 
-        CStackCalc stackCalc= new CStackCalc();                                          // Стековый калькулятор.
-        CUseCalc useCalc;                                                                // Режим использования калькулятора.
-        String userCmd= "";                                                              // Введенная пользователем команда.
+        CStackCalc stackCalc= new CStackCalc();                                             // Стековый калькулятор.
+        CalcManager calcManager;                                                            // Режим использования калькулятора.
+        String userCmd;                                                                     // Введенная пользователем команда.
 
-        useCalc= new CUseCalc(new File("res//1.txt"), CUseCalc.WorkType.WHILEREAD);
-        useCalc.buildCalc("CalcCommandList", stackCalc);
+        calcManager= new CalcManager(new File("res//1.txt"));
 
-        while (useCalc.isWokrs()) {
-            userCmd= useCalc.getNextCmd();
+        InputStreamReader readerCmdList;                                                    // Ресурс с командами для калькулятора.
+        readerCmdList= new InputStreamReader(CMain.class.getResourceAsStream("CalcCommandList.properties"));
+        calcManager.buildCalc(readerCmdList, stackCalc);
+
+        try {
+            readerCmdList.close();
+        } catch (IOException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+
+        while (calcManager.isWorks()) {
+            userCmd= calcManager.getNextCmd();
+
             if (!userCmd.isEmpty())
                 stackCalc.doCmd(userCmd);
         }

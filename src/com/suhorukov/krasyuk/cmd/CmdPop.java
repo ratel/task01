@@ -1,7 +1,5 @@
 package com.suhorukov.krasyuk.cmd;
 
-import java.util.Stack;
-
 /**
  * Created with IntelliJ IDEA.
  * User: Krasyuk
@@ -13,8 +11,8 @@ public class CmdPop extends AbstractCmd implements ICmd {
 
     @Override
     public int execute(String cmdLine) {
-        if (dataStack.size() > 0) {
-            dataStack.pop();
+        if (sizeStack() > 0) {
+            popElementStack();
         }
 
         return 0;

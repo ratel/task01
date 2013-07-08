@@ -1,6 +1,8 @@
 package com.suhorukov.krasyuk.task01;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 /**
  * Created with IntelliJ IDEA.
@@ -12,20 +14,29 @@ import java.io.File;
 public class CMain {
 
     public static void main(String [] args) {
-        CStackCalc stackCalc= new CStackCalc();                                          // Стековый калькулятор.
-        String userCmd= "";                                                              // Введенная пользователем команда.
-        CUseCalc useCalc;                                                                // Режим использования калькулятора.
+        CStackCalc stackCalc= new CStackCalc();                                         // Стековый калькулятор.
+        String userCmd;                                                                 // Введенная пользователем команда.
+        CalcManager calcManager;                                                        // Режим использования калькулятора.
+        InputStreamReader readerCmdList;                                                // Ресурс с командами для калькулятора.
 
         if (args.length > 0){
-            useCalc= new CUseCalc(new File(args[0]), CUseCalc.WorkType.WHILEREAD);
+            calcManager= new CalcManager(new File(args[0]));
         }
         else
-            useCalc= new CUseCalc(System.in, CUseCalc.WorkType.NOTEXIT);
+            calcManager= new CalcManager(System.in);
 
-        useCalc.buildCalc("CalcCommandList.properties", stackCalc);
+        readerCmdList= new InputStreamReader(CMain.class.getResourceAsStream("CalcCommandList.properties"));
+        calcManager.buildCalc(readerCmdList, stackCalc);
 
-        while (useCalc.isWokrs()) {
-            userCmd= useCalc.getNextCmd();
+        try {
+            readerCmdList.close();
+        } catch (IOException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+
+        while (calcManager.isWorks()) {
+            userCmd= calcManager.getNextCmd();
+
             if (!userCmd.isEmpty())
                 stackCalc.doCmd(userCmd);
         }

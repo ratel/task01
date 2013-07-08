@@ -14,8 +14,8 @@ public class CmdPrintTopElement extends AbstractCmd implements ICmd {
     @Override
     public int execute(String cmdLine) {
 
-        if (dataStack.size() > 0) {
-            System.out.println("Верхний элемент в стеке равен " + dataStack.peek());
+        if (sizeStack() > 0) {
+            System.out.println("Верхний элемент в стеке равен " + peekElementStack());
         }
         else
             System.out.println("Стек пуст!");

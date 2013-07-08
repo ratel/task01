@@ -1,9 +1,6 @@
 package com.suhorukov.krasyuk.cmd;
 
 
-import java.util.Hashtable;
-import java.util.Stack;
-
 /**
  * Created with IntelliJ IDEA.
  * User: Krasyuk
@@ -23,17 +20,16 @@ public class CmdPush extends AbstractCmd implements ICmd {
         }
         else {
             try {
-                dataStack.add(Double.valueOf(cmdWords[1]));
+                addElementStack(Double.valueOf(cmdWords[1]));
             }
             catch (Exception e) {
-                if (dictionaryDefine != null) {
-                    valueFromDictionary= dictionaryDefine.get(cmdWords[1]);
+                valueFromDictionary= getValFromDictionary(cmdWords[1]);
 
-                    if (valueFromDictionary != null) {
-                        dataStack.add(valueFromDictionary);
-                        return 0;
-                    }
+                if (valueFromDictionary != null) {
+                    addElementStack(valueFromDictionary);
+                    return 0;
                 }
+
                 System.err.println("Параметром для команды PUSH должно быть вещественное число!");
             }
         }
