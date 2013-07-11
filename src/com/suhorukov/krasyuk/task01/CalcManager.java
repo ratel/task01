@@ -9,9 +9,14 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.lang.Void;
 import java.util.*;
 
 import static com.suhorukov.krasyuk.cmd.fieldCmdKind.*;
+
 
 /**
  * Created with IntelliJ IDEA.
@@ -25,7 +30,9 @@ public class CalcManager {
     private WorkType workMode;                                                              // Режим работы (1- считываем из файла, 2- с консоли).
     private String  lastCmdLine= "";                                                        // Последняя считанная команда.
     final private String CMD_EXIT= "exit";                                                  // Команда прерывания ввода данных.
+    private ProxyMode proxyMode= ProxyMode.PROXYIN;
     public enum WorkType {WHILEREAD, NOTEXIT, DONTWORK}
+    public enum ProxyMode {PROXYIN, PROXYOUT}
 
     public CalcManager(InputStream inStream) {
         scn= new Scanner(inStream);
@@ -98,6 +105,8 @@ public class CalcManager {
                 cmd= (ICmd) o;
                 cmd.setCmdText(cmdName.toUpperCase());
                 InitFieldCmd(cmd, fieldsValue);
+                if (proxyMode == ProxyMode.PROXYIN)
+                    cmd= cmdProxy(cmd);
                 calc.addCmdCalc(cmd);
                 System.out.println("Добавили команду в калькулятор (" + cmd.getCmdText() + ")!");
             }
@@ -140,6 +149,46 @@ public class CalcManager {
                     System.err.println("Ошибка при устрановлении полю \"" + f.getName() + "\" ссылки по установленному типу \"" + annotationField.fieldType() + "\".");
                 }
             }
+        }
+    }
+
+    private ICmd cmdProxy(ICmd cmd) {
+        ICmd proxyCmd;
+        /*Object o;
+        o= CmdProxy.class.newInstance();
+        if (if )*/
+        proxyCmd= (ICmd) Proxy.newProxyInstance(ICmd.class.getClassLoader(), new Class<?>[]{ICmd.class},
+                new CmdProxy(cmd));
+
+        //return cmd;
+        return proxyCmd;
+    }
+
+    public class CmdProxy implements InvocationHandler {
+        ICmd cmd;
+
+        public CmdProxy(ICmd cmd) {
+            this.cmd= cmd;
+        }
+
+        @Override
+        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+            if ("getCmdText".equals(method.getName())) {
+                System.out.println(method.getDeclaringClass().getName() + "   " + cmd.getClass().getName());
+                return cmd.getCmdText();
+            }
+            if ("setCmdText".equals(method.getName())) {
+                if (args.length > 0)
+                    cmd.setCmdText((String) args[0]);
+                    return (Void.TYPE);
+            }
+            if ("execute".equals(method.getName())) {
+                if (args.length > 0)
+                return cmd.execute((String) args[0]);
+            }
+
+
+            return null;  //To change body of implemented methods use File | Settings | File Templates.
         }
     }
 }

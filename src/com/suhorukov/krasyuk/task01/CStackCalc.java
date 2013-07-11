@@ -3,6 +3,7 @@ package com.suhorukov.krasyuk.task01;
 import com.suhorukov.krasyuk.cmd.ICmd;
 
 import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * Created with IntelliJ IDEA.
@@ -11,8 +12,10 @@ import java.util.*;
  * Time: 14:08
  * To change this template use File | Settings | File Templates.
  */
+
 public class CStackCalc {
     private Hashtable<String, ICmd> cmdTable;                                               // Поддерживаемые команды.
+    private static final Logger log = Logger.getLogger(String.valueOf(CStackCalc.class));
 
 
     public CStackCalc() {
@@ -37,8 +40,9 @@ public class CStackCalc {
     }
 
     public void addCmdCalc(ICmd cmdItem) {
-        if (cmdItem != null)
+        if (cmdItem != null);
             cmdTable.put(cmdItem.getCmdText(), cmdItem);
+            //cmdTable.put("dfd", cmdItem);
     }
 }
 
