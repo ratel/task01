@@ -1,7 +1,11 @@
 package com.suhorukov.krasyuk.cmd;
 
+import org.apache.log4j.Logger;
+
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.Stack;
+import org.apache.log4j.Priority;
 
 /**
  * Created with IntelliJ IDEA.
@@ -18,6 +22,8 @@ public abstract class AbstractCmd implements ICmd {
     private Stack<Double> dataStack= null;                                          // Стек значений
     @FieldCmd(fieldType= fieldCmdKind.CONTEXT)
     private Hashtable<String, Double> dictionaryDefine= null;
+    private static final Logger log = Logger.getLogger(AbstractCmd.class);
+    enum LogLevelOut{OUTTRACE, OUTDEBUG, OUTINFO, OUTWARN, OUTERROR, OUTFATAL, OUTOFF};
 
     public String getCmdText() {
         return cmdText;
@@ -70,5 +76,88 @@ public abstract class AbstractCmd implements ICmd {
             return dictionaryDefine.size();
         else
             return 0;
+    }
+
+    protected void outMessage(String message, LogLevelOut levelOut) {
+        switch (levelOut) {
+            case OUTTRACE:
+                log.trace(message);
+                break;
+            case OUTDEBUG:
+                log.debug(message);
+                break;
+            case OUTINFO:
+                log.info(message);
+                break;
+            case OUTWARN:
+                log.warn(message);
+                break;
+            case OUTERROR:
+                log.error(message);
+                break;
+            case OUTFATAL:
+                log.fatal(message);
+                break;
+            /*case OUTOFF:
+                log.(message);
+                break;*/
+        }
+    }
+
+    protected boolean isLevelEnabled(LogLevelOut levelOut) {
+        switch (levelOut) {
+            case OUTTRACE:
+                return log.isTraceEnabled();
+
+            case OUTDEBUG:
+                return log.isDebugEnabled();
+
+            case OUTINFO:
+                return log.isInfoEnabled();
+
+            case OUTWARN:
+            case OUTERROR:
+            case OUTFATAL:
+            default:
+                return true;
+        }
+    }
+
+    public void outStackInLog() {
+        if (isLevelEnabled(LogLevelOut.OUTDEBUG)) {
+            StringBuilder outStr = new StringBuilder();
+
+            if (dataStack != null)
+                for (Double iStack: dataStack) {
+                    outStr.append(iStack);
+                    outStr.append(";  ");
+                }
+            else
+                outStr.append("Stack is null.");
+
+            if (outStr.length() == 0)
+                outStr.append("Stack is empty.");
+
+            outMessage(String.valueOf(outStr), LogLevelOut.OUTDEBUG);
+        }
+    }
+
+    public void outContextInLog() {
+        if (isLevelEnabled(LogLevelOut.OUTDEBUG)) {
+            StringBuilder outStr = new StringBuilder();
+
+            if (dictionaryDefine != null)
+                for (Map.Entry<String, Double> iDictionary: dictionaryDefine.entrySet()) {
+                    outStr.append(iDictionary.getKey() + " = " + iDictionary.getValue());
+                    outStr.append(";  ");
+                }
+            else
+                outStr.append("Context is null.");
+
+            if (outStr.length() == 0)
+                outStr.append("Context is empty.");
+
+            outMessage(String.valueOf(outStr), LogLevelOut.OUTDEBUG);
+        }
     }
 }

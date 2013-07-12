@@ -7,16 +7,18 @@ public class CmdDictionary extends AbstractCmd implements ICmd {
         String [] cmdWords= cmdLine.split("\\s");
 
         if (cmdWords.length < 3) {
-            System.err.println("Формат команды " + getCmdText() + ":  " + getCmdText() + " CONST VALUE!");
+            outMessage("Формат команды " + getCmdText() + ":  " + getCmdText() + " CONST VALUE!", LogLevelOut.OUTWARN);
         }
         else
             try {
                 putInDictionary(cmdWords[1], Double.valueOf(cmdWords[2]));
-                System.out.println("В словарь добавлена константа " + cmdWords[1] + "= " +
-                        getValFromDictionary(cmdWords[1]) + ". Размер словаря = " + sizeDictionary() + ".");
+                if (isLevelEnabled(LogLevelOut.OUTINFO))
+                    outMessage("В словарь добавлена константа " + cmdWords[1] + "= " +
+                        getValFromDictionary(cmdWords[1]) + ". Размер словаря = " + sizeDictionary() + ".",
+                        LogLevelOut.OUTINFO);
             }
             catch (Exception e) {
-                System.err.println("Второй параметр VALUE команды " + getCmdText() + " должен быть вещественным числом!");
+                outMessage("Второй параметр VALUE команды " + getCmdText() + " должен быть вещественным числом!", LogLevelOut.OUTWARN);
             }
 
         return 0;

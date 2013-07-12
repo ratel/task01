@@ -16,7 +16,7 @@ public class CmdPush extends AbstractCmd implements ICmd {
         Double valueFromDictionary;
 
         if (cmdWords.length < 2) {
-            System.err.println("Не введено данных для команды вставки (" + getCmdText() + ").");
+            outMessage("Не введено данных для команды вставки (" + getCmdText() + ").", LogLevelOut.OUTWARN);
         }
         else {
             try {
@@ -30,7 +30,7 @@ public class CmdPush extends AbstractCmd implements ICmd {
                     return 0;
                 }
 
-                System.err.println("Параметром для команды PUSH должно быть вещественное число!");
+                outMessage("Параметром для команды PUSH должно быть вещественное число!", LogLevelOut.OUTWARN);
             }
         }
 

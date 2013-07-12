@@ -13,8 +13,9 @@ public abstract class CmdTwoOperatds extends AbstractCmd implements ICmd {
     public int execute(String cmdLine) {
         double op1, op2;                                       // Операнды для выполнения команды.
 
-        if (sizeStack() < 2)
-            System.err.println("В стеке не хватает операнда для проведения операции команды " + getCmdText() + "!");
+        if (sizeStack() < 2) {
+            outMessage("В стеке не хватает операнда для проведения операции команды " + getCmdText() + "!", LogLevelOut.OUTWARN);
+        }
         else {
             op1= popElementStack();
             op2= popElementStack();

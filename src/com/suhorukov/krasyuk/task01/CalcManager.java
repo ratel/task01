@@ -3,6 +3,7 @@ package com.suhorukov.krasyuk.task01;
 import com.suhorukov.krasyuk.cmd.FieldCmd;
 import com.suhorukov.krasyuk.cmd.ICmd;
 import com.suhorukov.krasyuk.cmd.fieldCmdKind;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -30,23 +31,29 @@ public class CalcManager {
     private WorkType workMode;                                                              // Режим работы (1- считываем из файла, 2- с консоли).
     private String  lastCmdLine= "";                                                        // Последняя считанная команда.
     final private String CMD_EXIT= "exit";                                                  // Команда прерывания ввода данных.
+    private Stack<Double> dataStack= new Stack<Double>();                                   // Стек значений
+    private Hashtable<String, Double> dictionaryDefine= new Hashtable<String, Double>();
     private ProxyMode proxyMode= ProxyMode.PROXYIN;
+    private static final Logger log = Logger.getLogger(CalcManager.class);
     public enum WorkType {WHILEREAD, NOTEXIT, DONTWORK}
     public enum ProxyMode {PROXYIN, PROXYOUT}
 
-    public CalcManager(InputStream inStream) {
+    public CalcManager(InputStream inStream, ProxyMode proxyMode) {
         scn= new Scanner(inStream);
         this.workMode= WorkType.NOTEXIT;
+        this.proxyMode= proxyMode;
     }
 
-    public CalcManager(File file) {
+    public CalcManager(File file, ProxyMode proxyMode) {
         try {
             scn= new Scanner(file);
             this.workMode= WorkType.WHILEREAD;
         } catch (FileNotFoundException e) {
-            System.out.println("Не удалось открыть файл \"" + file.getName() + "\"");
+            //System.out.println("Не удалось открыть файл \"" + file.getName() + "\"");
+            log.error("Не удалось открыть файл \"" + file.getName() + "\"");
             this.workMode= WorkType.DONTWORK;
         }
+        this.proxyMode= proxyMode;
     }
 
     public String getNextCmd() {
@@ -66,11 +73,50 @@ public class CalcManager {
         return false;
     }
 
+
+    private void outStackInLog() {
+        if (log.isDebugEnabled()) {
+            StringBuilder outStr = new StringBuilder();
+
+            if (dataStack != null)
+                for (Double iStack: dataStack) {
+                    outStr.append(iStack);
+                    outStr.append(";  ");
+                }
+            else
+                outStr.append("Stack is null.");
+
+            if (outStr.length() == 0)
+                outStr.append("Stack is empty.");
+
+            log.debug(String.valueOf(outStr));
+        }
+    }
+
+    private void outContextInLog() {
+        if (log.isDebugEnabled()) {
+            StringBuilder outStr = new StringBuilder();
+
+            if (dictionaryDefine != null)
+                for (Map.Entry<String, Double> iDictionary: dictionaryDefine.entrySet()) {
+                    outStr.append(iDictionary.getKey() + " = " + iDictionary.getValue());
+                    outStr.append(";  ");
+                }
+            else
+                outStr.append("Context is null.");
+
+            if (outStr.length() == 0)
+                outStr.append("Context is empty.");
+
+            log.debug(String.valueOf(outStr));
+        }
+    }
+
     private Hashtable<fieldCmdKind, Object> InitValuesFieldForCmd() {
         Hashtable<fieldCmdKind, Object> fieldsValue= new Hashtable<fieldCmdKind, Object>(); // Набор пар видов полей и значений для них.
 
-        fieldsValue.put(STACK, (new Stack<Double>()));                                      // Стек значений
-        fieldsValue.put(CONTEXT, (new Hashtable<String, Double>()));                        // Словарь замен.
+        fieldsValue.put(STACK, dataStack);                                                  // Стек значений
+        fieldsValue.put(CONTEXT, dictionaryDefine);                                         // Словарь замен.
 
         return fieldsValue;
     }
@@ -88,7 +134,7 @@ public class CalcManager {
         }
         catch (Exception e) {
             //e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            System.err.println("Не удалось загрузить ресурс с перечнем команд калькулятора!");
+            log.error("Не удалось загрузить ресурс с перечнем команд калькулятора!");
         }
     }
 
@@ -108,11 +154,11 @@ public class CalcManager {
                 if (proxyMode == ProxyMode.PROXYIN)
                     cmd= cmdProxy(cmd);
                 calc.addCmdCalc(cmd);
-                System.out.println("Добавили команду в калькулятор (" + cmd.getCmdText() + ")!");
+                log.info("Добавили команду в калькулятор (" + cmd.getCmdText() + ")!");
             }
         }
         catch (Exception e) {
-            System.err.println("При создании команды для калькулятора использовано неизвестное имя класса (" + className + ")!");
+            log.warn("При создании команды для калькулятора использовано неизвестное имя класса (" + className + ")!");
         }
     }
 
@@ -145,8 +191,7 @@ public class CalcManager {
                 try {
                     f.set(obj, value);
                 } catch (IllegalAccessException e) {
-//                        System.err.println("Ошибка при устрановлении полю \"" + f.getName() + "\" класса \"" + c.getName() + "\" ссылки на стек калькулятора.");
-                    System.err.println("Ошибка при устрановлении полю \"" + f.getName() + "\" ссылки по установленному типу \"" + annotationField.fieldType() + "\".");
+                    log.error("Ошибка при устрановлении полю \"" + f.getName() + "\" ссылки по установленному типу \"" + annotationField.fieldType() + "\".");
                 }
             }
         }
@@ -174,7 +219,6 @@ public class CalcManager {
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             if ("getCmdText".equals(method.getName())) {
-                System.out.println(method.getDeclaringClass().getName() + "   " + cmd.getClass().getName());
                 return cmd.getCmdText();
             }
             if ("setCmdText".equals(method.getName())) {
@@ -183,8 +227,29 @@ public class CalcManager {
                     return (Void.TYPE);
             }
             if ("execute".equals(method.getName())) {
-                if (args.length > 0)
-                return cmd.execute((String) args[0]);
+                if (args.length > 0) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Stack before:");
+                        outStackInLog();
+                        log.debug("Context:");
+                        outContextInLog();
+
+                        StringBuilder outStr = new StringBuilder();
+                        log.debug("Arguments:");
+                        for (Object iArgs: args)
+                            outStr.append(iArgs + ";  ");
+                        log.debug(outStr);
+                    }
+
+                    int res= cmd.execute((String) args[0]);
+
+                    if (log.isDebugEnabled()) {
+                        log.debug("Stack After:");
+                        outStackInLog();
+                    }
+
+                    return res;
+                }
             }
 
 

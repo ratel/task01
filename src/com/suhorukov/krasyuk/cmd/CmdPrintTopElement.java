@@ -15,10 +15,14 @@ public class CmdPrintTopElement extends AbstractCmd implements ICmd {
     public int execute(String cmdLine) {
 
         if (sizeStack() > 0) {
-            System.out.println("Верхний элемент в стеке равен " + peekElementStack());
+            if (isLevelEnabled(LogLevelOut.OUTINFO))
+                outMessage("Верхний элемент в стеке равен " + peekElementStack(), LogLevelOut.OUTINFO);
+            //System.out.println("Верхний элемент в стеке равен " + peekElementStack());
         }
         else
-            System.out.println("Стек пуст!");
+            if (isLevelEnabled(LogLevelOut.OUTINFO))
+                outMessage("Стек пуст!", LogLevelOut.OUTINFO);
+            //System.out.println("Стек пуст!");
 
         return 0;
     }

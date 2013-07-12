@@ -1,9 +1,10 @@
 package com.suhorukov.krasyuk.task01;
 
 import com.suhorukov.krasyuk.cmd.ICmd;
+import org.apache.log4j.Logger;
 
 import java.util.*;
-import java.util.logging.Logger;
+
 
 /**
  * Created with IntelliJ IDEA.
@@ -15,7 +16,7 @@ import java.util.logging.Logger;
 
 public class CStackCalc {
     private Hashtable<String, ICmd> cmdTable;                                               // Поддерживаемые команды.
-    private static final Logger log = Logger.getLogger(String.valueOf(CStackCalc.class));
+    private static final Logger log = Logger.getLogger(CStackCalc.class);
 
 
     public CStackCalc() {
@@ -36,7 +37,8 @@ public class CStackCalc {
             cmd.execute(cmdLine);
         }
         else
-            System.out.println("Введенна неизвестная команда- \"" + cmdLine + "\"!");
+            log.info("Введенна неизвестная команда- \"" + cmdLine + "\"!");
+            //System.out.println("Введенна неизвестная команда- \"" + cmdLine + "\"!");
     }
 
     public void addCmdCalc(ICmd cmdItem) {

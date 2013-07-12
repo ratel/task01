@@ -18,7 +18,7 @@ public abstract class CmdSingleOperand extends AbstractCmd implements ICmd {
             addElementStack(calcOperation(op1));
         }
         else
-            System.err.println("В стеке не хватает операнда для проведения операции команды " + getCmdText() + "!");
+            outMessage("В стеке не хватает операнда для проведения операции команды " + getCmdText() + "!", LogLevelOut.OUTWARN);
 
         return 0;
     }

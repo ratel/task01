@@ -1,5 +1,8 @@
 package com.suhorukov.krasyuk.task01;
 
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -20,10 +23,10 @@ public class CMain {
         InputStreamReader readerCmdList;                                                // Ресурс с командами для калькулятора.
 
         if (args.length > 0){
-            calcManager= new CalcManager(new File(args[0]));
+            calcManager= new CalcManager(new File(args[0]), CalcManager.ProxyMode.PROXYIN);
         }
         else
-            calcManager= new CalcManager(System.in);
+            calcManager= new CalcManager(System.in, CalcManager.ProxyMode.PROXYIN);
 
         readerCmdList= new InputStreamReader(CMain.class.getResourceAsStream("CalcCommandList.properties"));
         calcManager.buildCalc(readerCmdList, stackCalc);

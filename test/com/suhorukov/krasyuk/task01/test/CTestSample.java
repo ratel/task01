@@ -35,7 +35,7 @@ public class CTestSample extends TestCase {
         CalcManager calcManager;                                                            // Режим использования калькулятора.
         String userCmd;                                                                     // Введенная пользователем команда.
 
-        calcManager= new CalcManager(new File("res//1.txt"));
+        calcManager= new CalcManager(new File("res//1.txt"), CalcManager.ProxyMode.PROXYIN);
 
         InputStreamReader readerCmdList;                                                    // Ресурс с командами для калькулятора.
         readerCmdList= new InputStreamReader(CMain.class.getResourceAsStream("CalcCommandList.properties"));
