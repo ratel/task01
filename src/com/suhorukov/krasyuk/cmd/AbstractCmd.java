@@ -5,7 +5,6 @@ import org.apache.log4j.Logger;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Stack;
-import org.apache.log4j.Priority;
 
 /**
  * Created with IntelliJ IDEA.
@@ -18,9 +17,9 @@ import org.apache.log4j.Priority;
 
 public abstract class AbstractCmd implements ICmd {
     private String cmdText = "ACmd";                                                // Текстовая интерпретация команды реализованной в классе.
-    @FieldCmd(fieldType= fieldCmdKind.STACK)
+    @FieldCmd(fieldType= FieldCmdKind.STACK)
     private Stack<Double> dataStack= null;                                          // Стек значений
-    @FieldCmd(fieldType= fieldCmdKind.CONTEXT)
+    @FieldCmd(fieldType= FieldCmdKind.CONTEXT)
     private Hashtable<String, Double> dictionaryDefine= null;                       // Словарь замен.
     private static final Logger log = Logger.getLogger(AbstractCmd.class);          // Логгер.
 
@@ -149,8 +148,7 @@ public abstract class AbstractCmd implements ICmd {
 
             if (dictionaryDefine != null)
                 for (Map.Entry<String, Double> iDictionary: dictionaryDefine.entrySet()) {
-                    outStr.append(iDictionary.getKey() + " = " + iDictionary.getValue());
-                    outStr.append(";  ");
+                    outStr.append(iDictionary.getKey() + " = " + iDictionary.getValue() + ";  ");
                 }
             else
                 outStr.append("Context is null.");

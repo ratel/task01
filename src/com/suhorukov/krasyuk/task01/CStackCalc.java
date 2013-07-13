@@ -19,7 +19,7 @@ public class CStackCalc {
     private static final Logger log = Logger.getLogger(CStackCalc.class);                   // Логгер.
 
     public CStackCalc() {
-        cmdTable= new Hashtable<String, ICmd>();
+        cmdTable= new Hashtable<>();
     }
 
     public void doCmd(String cmdLine) {
@@ -40,7 +40,7 @@ public class CStackCalc {
     }
 
     public void addCmdCalc(ICmd cmdItem) {
-        if (cmdItem != null);
+        if (cmdItem != null)
             cmdTable.put(cmdItem.getCmdText(), cmdItem);
     }
 }
