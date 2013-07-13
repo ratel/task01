@@ -21,8 +21,9 @@ public abstract class AbstractCmd implements ICmd {
     @FieldCmd(fieldType= fieldCmdKind.STACK)
     private Stack<Double> dataStack= null;                                          // Стек значений
     @FieldCmd(fieldType= fieldCmdKind.CONTEXT)
-    private Hashtable<String, Double> dictionaryDefine= null;
-    private static final Logger log = Logger.getLogger(AbstractCmd.class);
+    private Hashtable<String, Double> dictionaryDefine= null;                       // Словарь замен.
+    private static final Logger log = Logger.getLogger(AbstractCmd.class);          // Логгер.
+
     enum LogLevelOut{OUTTRACE, OUTDEBUG, OUTINFO, OUTWARN, OUTERROR, OUTFATAL, OUTOFF};
 
     public String getCmdText() {

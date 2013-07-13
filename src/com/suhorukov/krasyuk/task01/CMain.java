@@ -19,7 +19,7 @@ public class CMain {
     public static void main(String [] args) {
         CStackCalc stackCalc= new CStackCalc();                                         // Стековый калькулятор.
         String userCmd;                                                                 // Введенная пользователем команда.
-        CalcManager calcManager;                                                        // Режим использования калькулятора.
+        CalcManager calcManager;                                                        // Менеджер управления калькулятором.
         InputStreamReader readerCmdList;                                                // Ресурс с командами для калькулятора.
 
         if (args.length > 0){
@@ -34,7 +34,7 @@ public class CMain {
         try {
             readerCmdList.close();
         } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            e.printStackTrace();
         }
 
         while (calcManager.isWorks()) {

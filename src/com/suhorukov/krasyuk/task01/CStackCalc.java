@@ -16,8 +16,7 @@ import java.util.*;
 
 public class CStackCalc {
     private Hashtable<String, ICmd> cmdTable;                                               // Поддерживаемые команды.
-    private static final Logger log = Logger.getLogger(CStackCalc.class);
-
+    private static final Logger log = Logger.getLogger(CStackCalc.class);                   // Логгер.
 
     public CStackCalc() {
         cmdTable= new Hashtable<String, ICmd>();
@@ -38,13 +37,11 @@ public class CStackCalc {
         }
         else
             log.info("Введенна неизвестная команда- \"" + cmdLine + "\"!");
-            //System.out.println("Введенна неизвестная команда- \"" + cmdLine + "\"!");
     }
 
     public void addCmdCalc(ICmd cmdItem) {
         if (cmdItem != null);
             cmdTable.put(cmdItem.getCmdText(), cmdItem);
-            //cmdTable.put("dfd", cmdItem);
     }
 }
 

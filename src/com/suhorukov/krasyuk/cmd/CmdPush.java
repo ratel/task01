@@ -12,8 +12,8 @@ public class CmdPush extends AbstractCmd implements ICmd {
 
     @Override
     public int execute(String cmdLine) {
-        String [] cmdWords= cmdLine.split("\\s");
-        Double valueFromDictionary;
+        String [] cmdWords= cmdLine.split("\\s");                                           // Разложенная по составляющим стрка параметров.
+        Double valueFromDictionary;                                                         // Значение из словаря замен.
 
         if (cmdWords.length < 2) {
             outMessage("Не введено данных для команды вставки (" + getCmdText() + ").", LogLevelOut.OUTWARN);

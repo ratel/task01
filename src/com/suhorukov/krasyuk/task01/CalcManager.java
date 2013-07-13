@@ -27,14 +27,15 @@ import static com.suhorukov.krasyuk.cmd.fieldCmdKind.*;
  * To change this template use File | Settings | File Templates.
  */
 public class CalcManager {
-    private Scanner scn;                                                                    // Считывание команд пользователя.
-    private WorkType workMode;                                                              // Режим работы (1- считываем из файла, 2- с консоли).
-    private String  lastCmdLine= "";                                                        // Последняя считанная команда.
-    final private String CMD_EXIT= "exit";                                                  // Команда прерывания ввода данных.
-    private Stack<Double> dataStack= new Stack<Double>();                                   // Стек значений
-    private Hashtable<String, Double> dictionaryDefine= new Hashtable<String, Double>();
-    private ProxyMode proxyMode= ProxyMode.PROXYIN;
-    private static final Logger log = Logger.getLogger(CalcManager.class);
+    private Scanner scn;                                                               // Считывание команд пользователя.
+    private WorkType workMode;                                                         // Режим работы (1- считываем из файла, 2- с консоли).
+    private String  lastCmdLine= "";                                                   // Последняя считанная команда.
+    final private String CMD_EXIT= "exit";                                             // Команда прерывания ввода данных.
+    private Stack<Double> dataStack= new Stack<Double>();                              // Стек значений
+    private Hashtable<String, Double> dictionaryDefine= new Hashtable<String, Double>(); // Словарь замен.
+    private ProxyMode proxyMode= ProxyMode.PROXYIN;                                    // Режим с заменой команд на их прокси.
+    private static final Logger log = Logger.getLogger(CalcManager.class);             // Логгер.
+
     public enum WorkType {WHILEREAD, NOTEXIT, DONTWORK}
     public enum ProxyMode {PROXYIN, PROXYOUT}
 
@@ -198,19 +199,16 @@ public class CalcManager {
     }
 
     private ICmd cmdProxy(ICmd cmd) {
-        ICmd proxyCmd;
-        /*Object o;
-        o= CmdProxy.class.newInstance();
-        if (if )*/
+        ICmd proxyCmd;                                                                      // Созданная прокси команды.
+
         proxyCmd= (ICmd) Proxy.newProxyInstance(ICmd.class.getClassLoader(), new Class<?>[]{ICmd.class},
                 new CmdProxy(cmd));
 
-        //return cmd;
         return proxyCmd;
     }
 
     public class CmdProxy implements InvocationHandler {
-        ICmd cmd;
+        ICmd cmd;                                                                           // "Обернутая" в прокси команда.
 
         public CmdProxy(ICmd cmd) {
             this.cmd= cmd;
@@ -241,7 +239,7 @@ public class CalcManager {
                         log.debug(outStr);
                     }
 
-                    int res= cmd.execute((String) args[0]);
+                    int res= cmd.execute((String) args[0]);                                 // Результат реально отработавшей функции.
 
                     if (log.isDebugEnabled()) {
                         log.debug("Stack After:");
