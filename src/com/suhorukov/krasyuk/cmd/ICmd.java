@@ -8,7 +8,7 @@ package com.suhorukov.krasyuk.cmd;
  * To change this template use File | Settings | File Templates.
  */
 public interface ICmd {
-    public int execute(String cmdLine);
+    public void execute(String cmdLine) throws ExecuteException;
     public String getCmdText();
     public void setCmdText(String text);
 }

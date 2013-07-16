@@ -1,9 +1,9 @@
 package com.suhorukov.krasyuk.task01;
 
+import com.suhorukov.krasyuk.cmd.ExecuteException;
 import com.suhorukov.krasyuk.cmd.ICmd;
-import org.apache.log4j.Logger;
 
-import java.util.*;
+import java.util.Hashtable;
 
 
 /**
@@ -16,7 +16,6 @@ import java.util.*;
 
 public class CStackCalc {
     private Hashtable<String, ICmd> cmdTable;                                               // Поддерживаемые команды.
-    private static final Logger log = Logger.getLogger(CStackCalc.class);                   // Логгер.
 
     public CStackCalc() {
         cmdTable= new Hashtable<>();
@@ -33,10 +32,15 @@ public class CStackCalc {
             cmd= cmdTable.get(cmdWords[0].toUpperCase());
 
         if (cmd != null) {
-            cmd.execute(cmdLine);
+            try {
+                cmd.execute(cmdLine);
+            } catch (ExecuteException e) {
+                e.printStackTrace();
+                //System.err.println(e.getMessage());
+            }
         }
         else
-            log.info("Введенна неизвестная команда- \"" + cmdLine + "\"!");
+            System.out.println("Введена неизвестная команда- \"" + cmdLine + "\"!");
     }
 
     public void addCmdCalc(ICmd cmdItem) {

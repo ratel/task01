@@ -10,11 +10,9 @@ package com.suhorukov.krasyuk.cmd;
 public class CmdPop extends AbstractCmd implements ICmd {
 
     @Override
-    public int execute(String cmdLine) {
+    public void execute(String cmdLine) {
         if (sizeStack() > 0) {
             popElementStack();
         }
-
-        return 0;
     }
 }

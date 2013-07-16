@@ -11,12 +11,13 @@ package com.suhorukov.krasyuk.cmd;
 public class CmdPush extends AbstractCmd implements ICmd {
 
     @Override
-    public int execute(String cmdLine) {
+    public void execute(String cmdLine) throws ExecuteException {
         String [] cmdWords= cmdLine.split("\\s");                                           // Разложенная по составляющим стрка параметров.
         Double valueFromDictionary;                                                         // Значение из словаря замен.
 
         if (cmdWords.length < 2) {
-            outMessage("Не введено данных для команды вставки (" + getCmdText() + ").", LogLevelOut.OUTWARN);
+            //System.err.println("Не введено данных для команды вставки (" + getCmdText() + ").");
+            throw new ExecuteException("Не введено данных для команды вставки (" + getCmdText() + ").");
         }
         else {
             try {
@@ -27,14 +28,12 @@ public class CmdPush extends AbstractCmd implements ICmd {
 
                 if (valueFromDictionary != null) {
                     addElementStack(valueFromDictionary);
-                    return 0;
+                    return;
                 }
 
-                outMessage("Параметром для команды PUSH должно быть вещественное число!", LogLevelOut.OUTWARN);
+                throw new ExecuteException("Параметром для команды PUSH должно быть вещественное число!");
             }
         }
-
-        return 0;
     }
 }
 

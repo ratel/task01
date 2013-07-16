@@ -10,19 +10,17 @@ package com.suhorukov.krasyuk.cmd;
 public abstract class CmdTwoOperatds extends AbstractCmd implements ICmd {
 
     @Override
-    public int execute(String cmdLine) {
+    public void execute(String cmdLine) throws ExecuteException {
         double op1, op2;                                       // Операнды для выполнения команды.
 
         if (sizeStack() < 2) {
-            outMessage("В стеке не хватает операнда для проведения операции команды " + getCmdText() + "!", LogLevelOut.OUTWARN);
+            throw new ExecuteException("В стеке не хватает операнда для проведения операции команды " + getCmdText() + "!");
         }
         else {
             op1= popElementStack();
             op2= popElementStack();
             addElementStack(calcOperation(op1, op2));
         }
-
-        return 0;
     }
 
     protected abstract double calcOperation(double operand1, double operand2);

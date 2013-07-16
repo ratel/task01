@@ -10,7 +10,7 @@ package com.suhorukov.krasyuk.cmd;
 public abstract class CmdSingleOperand extends AbstractCmd implements ICmd {
 
     @Override
-    public int execute(String cmdLine) {
+    public void execute(String cmdLine) throws ExecuteException {
         double op1;                                                                         // Операнд для выполнения команды.
 
         if (sizeStack() > 0) {
@@ -18,9 +18,7 @@ public abstract class CmdSingleOperand extends AbstractCmd implements ICmd {
             addElementStack(calcOperation(op1));
         }
         else
-            outMessage("В стеке не хватает операнда для проведения операции команды " + getCmdText() + "!", LogLevelOut.OUTWARN);
-
-        return 0;
+            throw new ExecuteException("В стеке не хватает операнда для проведения операции команды " + getCmdText() + "!");
     }
 
     protected abstract double calcOperation(double operand1);

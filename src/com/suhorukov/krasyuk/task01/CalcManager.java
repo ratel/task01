@@ -5,10 +5,7 @@ import com.suhorukov.krasyuk.cmd.FieldCmdKind;
 import com.suhorukov.krasyuk.cmd.ICmd;
 import org.apache.log4j.Logger;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -27,33 +24,21 @@ import static com.suhorukov.krasyuk.cmd.FieldCmdKind.*;
  * To change this template use File | Settings | File Templates.
  */
 public class CalcManager {
-    private Scanner scn;                                                               // Считывание команд пользователя.
-    private WorkType workMode;                                                         // Режим работы (1- считываем из файла, 2- с консоли).
-    private String  lastCmdLine= "";                                                   // Последняя считанная команда.
-    final private String CMD_EXIT= "exit";                                             // Команда прерывания ввода данных.
+    private Scanner scn;                                                                // Считывание команд пользователя.
+    private WorkType workMode;                                                          // Режим работы (1- считываем из файла, 2- с консоли).
+    private String  lastCmdLine= "";                                                    // Последняя считанная команда.
+    final private String CMD_EXIT= "exit";                                              // Команда прерывания ввода данных.
     private Stack<Double> dataStack= new Stack<>();                                     // Стек значений
     private Hashtable<String, Double> dictionaryDefine= new Hashtable<>();              // Словарь замен.
-    private ProxyMode proxyMode= ProxyMode.PROXYIN;                                    // Режим с заменой команд на их прокси.
-    private static final Logger log = Logger.getLogger(CalcManager.class);             // Логгер.
+    private ProxyMode proxyMode= ProxyMode.PROXYIN;                                     // Режим с заменой команд на их прокси.
+    private static final Logger log = Logger.getLogger(CalcManager.class);              // Логгер.
 
     public enum WorkType {WHILEREAD, NOTEXIT, DONTWORK}
     public enum ProxyMode {PROXYIN, PROXYOUT}
 
-    public CalcManager(InputStream inStream, ProxyMode proxyMode) {
-        scn= new Scanner(inStream);
-        this.workMode= WorkType.NOTEXIT;
-        this.proxyMode= proxyMode;
-    }
-
-    public CalcManager(File file, ProxyMode proxyMode) {
-        try {
-            scn= new Scanner(file);
-            this.workMode= WorkType.WHILEREAD;
-        } catch (FileNotFoundException e) {
-            //System.out.println("Не удалось открыть файл \"" + file.getName() + "\"");
-            log.error("Не удалось открыть файл \"" + file.getName() + "\"");
-            this.workMode= WorkType.DONTWORK;
-        }
+    public CalcManager(Scanner scn, WorkType workMode, ProxyMode proxyMode) {
+        this.scn= scn;
+        this.workMode= workMode;
         this.proxyMode= proxyMode;
     }
 
@@ -100,7 +85,10 @@ public class CalcManager {
 
             if (dictionaryDefine != null)
                 for (Map.Entry<String, Double> iDictionary: dictionaryDefine.entrySet()) {
-                    outStr.append(iDictionary.getKey() + " = " + iDictionary.getValue());
+                    //outStr.append(iDictionary.getKey() + " = " + iDictionary.getValue() + ";  ");
+                    outStr.append(iDictionary.getKey());
+                    outStr.append(" = ");
+                    outStr.append(iDictionary.getValue());
                     outStr.append(";  ");
                 }
             else
@@ -122,20 +110,14 @@ public class CalcManager {
         return fieldsValue;
     }
 
-    public void buildCalc(InputStreamReader readerCmdList, CStackCalc calc) {
+    public void buildCalc(InputStreamReader readerCmdList, CStackCalc calc) throws IOException {
         Properties cmdMap= new Properties();                                               // Перечень комманд калькулятора для создания.
 
-        try {
-            cmdMap.load(readerCmdList);
-            Hashtable<FieldCmdKind, Object> fieldsValue= InitValuesFieldForCmd();          // Перечень пар (тип поля, значение для него) (инициализация полей команды).
+        cmdMap.load(readerCmdList);
+        Hashtable<FieldCmdKind, Object> fieldsValue= InitValuesFieldForCmd();          // Перечень пар (тип поля, значение для него) (инициализация полей команды).
 
-            for (Map.Entry<Object, Object> icmdList: cmdMap.entrySet()) {
-                addCmdInCalc(calc, icmdList.getKey().toString(), icmdList.getValue().toString(), fieldsValue);
-            }
-        }
-        catch (Exception e) {
-            //e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            log.error("Не удалось загрузить ресурс с перечнем команд калькулятора!");
+        for (Map.Entry<Object, Object> icmdList: cmdMap.entrySet()) {
+            addCmdInCalc(calc, icmdList.getKey().toString(), icmdList.getValue().toString(), fieldsValue);
         }
     }
 
@@ -152,8 +134,10 @@ public class CalcManager {
                 cmd= (ICmd) o;
                 cmd.setCmdText(cmdName.toUpperCase());
                 InitFieldCmd(cmd, fieldsValue);
+
                 if (proxyMode == ProxyMode.PROXYIN)
                     cmd= cmdProxy(cmd);
+
                 calc.addCmdCalc(cmd);
                 log.info("Добавили команду в калькулятор (" + cmd.getCmdText() + ")!");
             }
@@ -208,7 +192,7 @@ public class CalcManager {
     }
 
     public class CmdProxy implements InvocationHandler {
-        ICmd cmd;                                                                           // "Обернутая" в прокси команда.
+        ICmd cmd;                                                                           // Реальная команда, "обернутая" в прокси.
 
         public CmdProxy(ICmd cmd) {
             this.cmd= cmd;
@@ -233,23 +217,27 @@ public class CalcManager {
                         outContextInLog();
 
                         StringBuilder outStr = new StringBuilder();
+
                         log.debug("Arguments:");
-                        for (Object iArgs: args)
-                            outStr.append(iArgs + ";  ");
+
+                        for (Object iArgs: args) {
+                            outStr.append(iArgs);
+                            outStr.append(";  ");
+                        }
+
                         log.debug(outStr);
                     }
 
-                    int res= cmd.execute((String) args[0]);                                 // Результат реально отработавшей функции.
+                    cmd.execute((String) args[0]);                                 // Результат реально отработавшей функции.
 
                     if (log.isDebugEnabled()) {
                         log.debug("Stack After:");
                         outStackInLog();
                     }
 
-                    return res;
                 }
+                return Void.TYPE;
             }
-
 
             return null;  //To change body of implemented methods use File | Settings | File Templates.
         }
